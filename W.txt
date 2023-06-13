@@ -1,0 +1,74 @@
+@echo off
+
+echo Welcome to Exot1c System.
+echo Script Working BETA
+
+ping -n 2 127.0.0.1 > nul
+
+set "GAME_RUNNING=false"
+set "SPINNER=VIP "
+
+:CHECK_HWID
+set "WHITELISTED=false"
+set "HWID_LIST=ABC123 DEF456 GHI789"
+
+REM Get the current HWID of the computer
+wmic csproduct get uuid | findstr /r "[0-9A-F]" > hwid.txt
+set /p CURRENT_HWID=<hwid.txt
+del hwid.txt
+
+REM Check if the current HWID matches any entry in the list
+for %%A in (%HWID_LIST%) do (
+    if "%%A"=="%CURRENT_HWID%" (
+        set "WHITELISTED=true"
+        goto :ANIMATION
+    )
+)
+
+echo Not Whitelisted: %CURRENT_HWID%
+pause
+exit
+
+:ANIMATION
+cls
+echo Welcome to Exot1c System.
+echo Script Working BETA ~ Exot1c#7954
+
+for /L %%i in (1,1,10) do (
+    set /A "SPINNER_INDEX=%%i %% 4"
+    echo !SPINNER:! Monitoring Game...
+    ping -n 1 127.0.0.1 > nul
+)
+
+goto :CHECK_RUNNING
+
+:CHECK_RUNNING
+tasklist | find /i "Windows10Universal.exe" > nul
+if %errorlevel% equ 0 (
+    set "GAME_RUNNING=false"
+) else (
+    if %GAME_RUNNING%==false (
+        tasklist | find /i "Windows10Universal.exe" | find /i "GameName" > nul
+        if %errorlevel% equ 0 (
+            tasklist /v | find /i "Windows10Universal.exe" | find /i "Roblox Game" > nul
+            if %errorlevel% equ 0 (
+                echo Game is running
+                set "GAME_RUNNING=true"
+            ) else (
+                cls
+                echo Game has closed unexpectedly
+                set "GAME_RUNNING=false"
+            )
+        ) else (
+            echo Game is not running
+            timeout /t 15 > nul
+            start "Roblox Game" "roblox://placeID=6284583030"
+            echo Game Launched
+            set "GAME_RUNNING=true"
+        )
+    )
+)
+
+ping -n 3 127.0.0.1 > nul
+
+goto :ANIMATION
