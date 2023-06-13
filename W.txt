@@ -8,15 +8,19 @@ ping -n 2 127.0.0.1 > nul
 set "GAME_RUNNING=false"
 set "SPINNER=VIP "
 
-:CHECK_HWID
-set "WHITELISTED=false"
+REM Define the HWID list
 set "HWID_LIST=ABC123 DEF456 GHI789"
 
-REM Get the current HWID of the computer
-wmic csproduct get uuid | findstr /r "[0-9A-F]" > hwid.txt
-set /p CURRENT_HWID=<hwid.txt
-del hwid.txt
+:CHECK_HWID
+set "WHITELISTED=false"
 
+REM Get the current HWID of the computer
+for /F "skip=1 tokens=2 delims=:" %%A in ('vol') do (
+    set "CURRENT_HWID=%%A"
+    goto :CHECK_HWID_MATCH
+)
+
+:CHECK_HWID_MATCH
 REM Check if the current HWID matches any entry in the list
 for %%A in (%HWID_LIST%) do (
     if "%%A"=="%CURRENT_HWID%" (
